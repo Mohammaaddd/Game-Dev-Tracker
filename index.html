@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Game Dev Tracker</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Game Dev Tracker</h1>
+        <p>Keep track of your game development.</p>
+      </div>
+
+      <button id="newTaskBtn">+ New Task</button>
+    </header>
+
+    <main>
+      <!-- Game information -->
+      <section class="game-header">
+        <div>
+          <p class="label">CURRENT GAME</p>
+          <h2 id="gameName">My Platformer</h2>
+        </div>
+
+        <div class="milestone">
+          <p class="label">CURRENT MILESTONE</p>
+          <strong id="currentMilestone">Grapple System</strong>
+        </div>
+      </section>
+
+      <!-- Statistics -->
+      <section class="stats">
+        <div class="stat-card">
+          <span>Progress</span>
+          <strong id="progress">0%</strong>
+        </div>
+
+        <div class="stat-card">
+          <span>Tasks</span>
+          <strong id="taskCount">0 / 0</strong>
+        </div>
+
+        <div class="stat-card">
+          <span>This Week</span>
+          <strong>0h 00m</strong>
+        </div>
+
+        <div class="stat-card">
+          <span>Streak</span>
+          <strong>0 🔥</strong>
+        </div>
+      </section>
+
+      <!-- Progress bar -->
+      <section class="progress-section">
+        <div class="progress-info">
+          <span>Overall Progress</span>
+          <span id="progressText">0%</span>
+        </div>
+
+        <div class="progress-bar">
+          <div id="progressFill"></div>
+        </div>
+      </section>
+
+      <!-- Task board -->
+      <section class="board">
+        <div class="column">
+          <div class="column-header">
+            <h3>Ideas</h3>
+            <span id="ideasCount">0</span>
+          </div>
+
+          <div id="ideas" class="task-list"></div>
+        </div>
+
+        <div class="column">
+          <div class="column-header">
+            <h3>To Do</h3>
+            <span id="todoCount">0</span>
+          </div>
+
+          <div id="todo" class="task-list"></div>
+        </div>
+
+        <div class="column">
+          <div class="column-header">
+            <h3>In Progress</h3>
+            <span id="progressCount">0</span>
+          </div>
+
+          <div id="inProgress" class="task-list"></div>
+        </div>
+
+        <div class="column">
+          <div class="column-header">
+            <h3>Done</h3>
+            <span id="doneCount">0</span>
+          </div>
+
+          <div id="done" class="task-list"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- New task modal -->
+    <div id="modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>New Task</h2>
+          <button id="closeModal">×</button>
+        </div>
+
+        <form id="taskForm">
+          <label>
+            Task Name
+            <input
+              type="text"
+              id="taskName"
+              placeholder="e.g. Add wall jump"
+              required
+            />
+          </label>
+
+          <label>
+            Description
+            <textarea
+              id="taskDescription"
+              placeholder="What needs to be done?"
+            ></textarea>
+          </label>
+
+          <label>
+            Status
+
+            <select id="taskStatus">
+              <option value="ideas">Ideas</option>
+
+              <option value="todo">To Do</option>
+
+              <option value="inProgress">In Progress</option>
+
+              <option value="done">Done</option>
+            </select>
+          </label>
+
+          <label>
+            Priority
+
+            <select id="taskPriority">
+              <option value="low">Low</option>
+
+              <option value="medium" selected>Medium</option>
+
+              <option value="high">High</option>
+            </select>
+          </label>
+
+          <button class="submit-btn" type="submit">Add Task</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
