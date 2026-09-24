@@ -49,7 +49,7 @@ body {
   cursor: pointer;
 }
 
-.topbar:hover {
+.topbar:hover:not(:has(button:hover)) {
   background: #4b5bed;
 }
 
