@@ -479,3 +479,31 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================
+   DRAG AND DROP
+========================= */
+
+.task {
+  cursor: grab;
+}
+
+.task:active {
+  cursor: grabbing;
+}
+
+.task.dragging {
+  opacity: 0.4;
+  transform: rotate(2deg);
+}
+
+.task-list {
+  min-height: 350px;
+  transition: 0.2s;
+}
+
+.task-list.drag-over {
+  background: rgba(105, 120, 255, 0.08);
+  border: 1px dashed #6978ff;
+  border-radius: 8px;
+}

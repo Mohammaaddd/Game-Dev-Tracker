@@ -4,11 +4,11 @@
 
 let tasks = JSON.parse(localStorage.getItem("gameTasks")) || [];
 
+let draggedTaskId = null;
+
 // =========================
 // ELEMENTS
 // =========================
-
-const topBar = document.querySelector(".topbar");
 
 const modal = document.getElementById("modal");
 
@@ -30,8 +30,9 @@ const taskPriority = document.getElementById("taskPriority");
 // OPEN MODAL
 // =========================
 
-newTaskBtn.addEventListener("click", (e) => {
+newTaskBtn.addEventListener("click", () => {
   modal.classList.remove("hidden");
+
   taskName.focus();
 });
 
@@ -74,6 +75,8 @@ taskForm.addEventListener("submit", (event) => {
 
   renderTasks();
 
+  taskForm.reset();
+
   modal.classList.add("hidden");
 });
 
@@ -92,8 +95,11 @@ function saveTasks() {
 function renderTasks() {
   const columns = {
     ideas: document.getElementById("ideas"),
+
     todo: document.getElementById("todo"),
+
     inProgress: document.getElementById("inProgress"),
+
     done: document.getElementById("done"),
   };
 
@@ -103,7 +109,7 @@ function renderTasks() {
     column.innerHTML = "";
   });
 
-  //add tasks
+  // Create task elements
 
   tasks.forEach((task) => {
     const taskElement = createTaskElement(task);
@@ -111,11 +117,13 @@ function renderTasks() {
     columns[task.status].appendChild(taskElement);
   });
 
+  setupDropZones();
+
   updateStatistics();
 }
 
 // =========================
-// CREATE TASK ELEMENT
+// CREATE TASK
 // =========================
 
 function createTaskElement(task) {
@@ -123,11 +131,19 @@ function createTaskElement(task) {
 
   div.classList.add("task");
 
+  // Make task draggable
+  div.draggable = true;
+
+  // Store task ID on the element
+  div.dataset.id = task.id;
+
   div.innerHTML = `
 
-        <h4>${task.name}</h4>
+        <h4>${escapeHTML(task.name)}</h4>
 
-        <p>${task.description || "No description."}</p>
+        <p>
+            ${escapeHTML(task.description || "No description.")}
+        </p>
 
         <span class="priority ${task.priority}">
             ${task.priority}
@@ -135,7 +151,95 @@ function createTaskElement(task) {
 
     `;
 
+  // =========================
+  // DRAG START
+  // =========================
+
+  div.addEventListener("dragstart", (event) => {
+    draggedTaskId = Number(event.currentTarget.dataset.id);
+
+    event.dataTransfer.setData("text/plain", draggedTaskId);
+
+    event.dataTransfer.effectAllowed = "move";
+
+    div.classList.add("dragging");
+  });
+
+  // =========================
+  // DRAG END
+  // =========================
+
+  div.addEventListener("dragend", () => {
+    draggedTaskId = null;
+
+    div.classList.remove("dragging");
+  });
+
   return div;
+}
+
+// =========================
+// DROP ZONES
+// =========================
+
+function setupDropZones() {
+  const columns = document.querySelectorAll(".column");
+
+  columns.forEach((column) => {
+    const taskList = column.querySelector(".task-list");
+
+    // Allow dropping
+    taskList.addEventListener("dragover", (event) => {
+      event.preventDefault();
+
+      event.dataTransfer.dropEffect = "move";
+
+      taskList.classList.add("drag-over");
+    });
+
+    // Remove visual feedback
+    taskList.addEventListener("dragleave", (event) => {
+      if (!taskList.contains(event.relatedTarget)) {
+        taskList.classList.remove("drag-over");
+      }
+    });
+
+    // Handle drop
+    taskList.addEventListener("drop", (event) => {
+      event.preventDefault();
+
+      taskList.classList.remove("drag-over");
+
+      const taskId = Number(event.dataTransfer.getData("text/plain"));
+
+      // Find the task
+      const task = tasks.find((task) => task.id === taskId);
+
+      if (!task) {
+        return;
+      }
+
+      // Get the new status
+      const newStatus = taskList.parentElement.querySelector("h3").textContent;
+
+      // Convert column name to status
+      const statusMap = {
+        Ideas: "ideas",
+
+        "To Do": "todo",
+
+        "In Progress": "inProgress",
+
+        Done: "done",
+      };
+
+      task.status = statusMap[newStatus];
+
+      saveTasks();
+
+      renderTasks();
+    });
+  });
 }
 
 // =========================
@@ -178,6 +282,18 @@ function updateColumnCount(status, elementId) {
   const count = tasks.filter((task) => task.status === status).length;
 
   document.getElementById(elementId).textContent = count;
+}
+
+// =========================
+// BASIC HTML ESCAPING
+// =========================
+
+function escapeHTML(text) {
+  const element = document.createElement("div");
+
+  element.textContent = text;
+
+  return element.innerHTML;
 }
 
 // =========================
