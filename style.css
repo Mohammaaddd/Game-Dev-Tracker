@@ -507,3 +507,59 @@ textarea {
   border: 1px dashed #6978ff;
   border-radius: 8px;
 }
+
+/* =========================
+   DELETE AREA
+========================= */
+.delete-area {
+  margin-top: 20px;
+
+  min-height: 100px;
+
+  border: 1px dashed #493238;
+
+  border-radius: 10px;
+
+  background: #171419;
+
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  gap: 15px;
+
+  color: #9a7d84;
+
+  transition: 0.2s;
+}
+
+.delete-area h3 {
+  font-size: 14px;
+
+  margin-bottom: 4px;
+}
+
+.delete-area p {
+  font-size: 12px;
+
+  color: #71656a;
+}
+
+.delete-icon {
+  font-size: 25px;
+}
+
+.delete-area.drag-over {
+  background: #351d23;
+
+  border-color: #d45b6b;
+
+  color: #e47b84;
+
+  transform: scale(1.01);
+}
+
+.delete-area.drag-over p {
+  color: #c9828c;
+}

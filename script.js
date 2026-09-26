@@ -240,6 +240,37 @@ function setupDropZones() {
       renderTasks();
     });
   });
+
+  const deleteArea = document.getElementById("deleteArea");
+
+  deleteArea.addEventListener("dragover", (event) => {
+    event.preventDefault();
+
+    event.dataTransfer.dropEffect = "move";
+
+    deleteArea.classList.add("drag-over");
+  });
+
+  deleteArea.addEventListener("dragleave", (event) => {
+    if (!deleteArea.contains(event.relatedTarget)) {
+      deleteArea.classList.remove("drag-over");
+    }
+  });
+
+  deleteArea.addEventListener("drop", (event) => {
+    event.preventDefault();
+
+    deleteArea.classList.remove("drag-over");
+
+    const taskId = Number(event.dataTransfer.getData("text/plain"));
+
+    // Remove the task
+    tasks = tasks.filter((task) => task.id !== taskId);
+
+    saveTasks();
+
+    renderTasks();
+  });
 }
 
 // =========================
