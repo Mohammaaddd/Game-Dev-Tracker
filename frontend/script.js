@@ -54,39 +54,50 @@ modal.addEventListener("click", (event) => {
 // ADD TASK
 // =========================
 
-taskForm.addEventListener("submit", (event) => {
+taskForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const newTask = {
-    id: Date.now(),
-
     name: taskName.value,
-
     description: taskDescription.value,
-
     status: taskStatus.value,
-
     priority: taskPriority.value,
   };
 
-  tasks.push(newTask);
+  try {
+    const response = await fetch("http://localhost:3000/api/tasks", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newTask),
+    });
 
-  saveTasks();
+    if (!response.ok) {
+      throw new Error("Failed to create task");
+    }
 
-  renderTasks();
+    const createdTask = await response.json();
 
-  taskForm.reset();
+    tasks.push(createdTask);
 
-  modal.classList.add("hidden");
+    renderTasks();
+
+    taskForm.reset();
+
+    modal.classList.add("hidden");
+  } catch (error) {
+    console.error("Error creating task:", error);
+  }
 });
 
 // =========================
 // SAVE
 // =========================
 
-function saveTasks() {
-  localStorage.setItem("gameTasks", JSON.stringify(tasks));
-}
+// function saveTasks() {
+//   localStorage.setItem("gameTasks", JSON.stringify(tasks));
+// }
 
 // =========================
 // RENDER TASKS
@@ -182,7 +193,7 @@ function createTaskElement(task) {
 // DROP ZONES
 // =========================
 
-function setupDropZones() {
+async function setupDropZones() {
   const columns = document.querySelectorAll(".column");
 
   columns.forEach((column) => {
@@ -205,7 +216,7 @@ function setupDropZones() {
     });
 
     // Handle drop
-    taskList.addEventListener("drop", (event) => {
+    taskList.addEventListener("drop", async (event) => {
       event.preventDefault();
 
       taskList.classList.remove("drag-over");
@@ -225,19 +236,42 @@ function setupDropZones() {
       // Convert column name to status
       const statusMap = {
         Ideas: "ideas",
-
         "To Do": "todo",
-
         "In Progress": "inProgress",
-
         Done: "done",
       };
 
-      task.status = statusMap[newStatus];
+      const updatedStatus = statusMap[newStatus];
 
-      saveTasks();
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/tasks/${taskId}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              status: updatedStatus,
+            }),
+          },
+        );
 
-      renderTasks();
+        if (!response.ok) {
+          throw new Error("Failed to update task");
+        }
+
+        const updatedTask = await response.json();
+
+        // Replace the old task with the updated task
+        const index = tasks.findIndex((task) => task.id === taskId);
+
+        tasks[index] = updatedTask;
+
+        renderTasks();
+      } catch (error) {
+        console.error("Error updating task:", error);
+      }
     });
   });
 
@@ -257,19 +291,36 @@ function setupDropZones() {
     }
   });
 
-  deleteArea.addEventListener("drop", (event) => {
+  deleteArea.addEventListener("drop", async (event) => {
     event.preventDefault();
 
+    //remove the visual drag over effect
     deleteArea.classList.remove("drag-over");
 
+    //get the id of the task being dragged
     const taskId = Number(event.dataTransfer.getData("text/plain"));
 
-    // Remove the task
-    tasks = tasks.filter((task) => task.id !== taskId);
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/tasks/${taskId}`,
+        {
+          method: "DELETE",
+        },
+      );
 
-    saveTasks();
+      //check if the response is ok
+      if (!response.ok) {
+        throw new Error("Failed to delete task");
+      }
 
-    renderTasks();
+      //remove the task from the frontend array
+      tasks = tasks.filter((task) => task.id !== taskId);
+
+      //update the board
+      renderTasks();
+    } catch (error) {
+      console.error("Error deleting task:", error);
+    }
   });
 }
 
@@ -331,4 +382,20 @@ function escapeHTML(text) {
 // INITIAL LOAD
 // =========================
 
-renderTasks();
+async function loadTasks() {
+  try {
+    const response = await fetch("http://localhost:3000/api/tasks");
+
+    if (!response.ok) {
+      throw new Error("failed to load tasks");
+    }
+
+    tasks = await response.json();
+
+    renderTasks();
+  } catch (error) {
+    console.error("Error loading tasks:", error);
+  }
+}
+
+loadTasks();
